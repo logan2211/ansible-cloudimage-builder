@@ -1,0 +1,78 @@
+---
+
+- name: Prepare system for image bootstrap
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: Ensure root user
+      shell: test `id -u` -eq 0
+    - name: Install required packages
+      apt:
+        update_cache: yes
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - unzip
+        - qemu-utils
+        - policycoreutils
+      run_once: true
+      tags:
+        - image-packages
+    - name: Load nbd
+      modprobe:
+        name: nbd
+        params: nbds_max=32
+        state: present
+
+- name: Bootstrap all images
+  hosts: images
+  serial: "{{ concurrent_builds }}"
+  gather_facts: no
+  connection: local
+  roles:
+    - role: fetch_mount
+    - role: mount_proc
+      mount_filesystems: yes
+    - role: gather_facts
+      ansible_connection: chroot
+    - role: os_configure
+      ansible_connection: chroot
+    - role: mount_proc
+      unmount_filesystems: yes
+    - role: resize_upload
+  vars:
+    concurrent_builds: 6
+    image_dir: "{{ (inventory_hostname ~ '/..') | realpath }}"
+    apt_mirror_url: http://mirror.lstn.net/ubuntu
+    os_upload_public: yes
+    os_image_properties:
+      hw_scsi_model: virtio-scsi
+      hw_disk_bus: scsi
+      hw_qemu_guest_agent: yes
+      os_require_quiesce: yes
+    os_auth:
+      auth_url: "{{ os_auth_endpoint }}"
+      username: "{{ os_auth_username }}"
+      password: "{{ os_auth_password }}"
+      project_name: "{{ os_auth_project }}"
+      domain_name: Default
+  vars_prompt:
+    - name: os_auth_endpoint
+      prompt: "Openstack Auth Endpoint"
+      private: no
+    - name: os_auth_username
+      prompt: "Openstack Username"
+      default: admin
+      private: no
+    - name: os_auth_password
+      prompt: "Openstack Password"
+      private: yes
+    - name: os_auth_project
+      prompt: "Openstack Project"
+      default: admin
+      private: no
+    - name: os_ssl_verify
+      prompt: "Verify Openstack SSL Certificates"
+      default: yes
+      private: no

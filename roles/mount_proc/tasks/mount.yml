@@ -1,0 +1,14 @@
+- name: Mount proc in bootstrap
+  command: mount -t proc proc "{{ inventory_hostname }}/proc"
+  tags:
+    - image-bootstrap-mount-proc
+
+- name: Mount sys in bootstrap
+  command: mount -t sysfs sysfs "{{ inventory_hostname }}/sys"
+  tags:
+    - image-bootstrap-mount-sys
+
+- name: Mount dev in bootstrap
+  command: mount -o bind /dev "{{ inventory_hostname }}/dev"
+  tags:
+    - image-bootstrap-mount-dev

@@ -1,0 +1,3 @@
+{% for item in os_ubuntu_apt_repos %}
+{{ item.debtype | default('deb') }} {{ item.url }} {{ item.distribution | default(ansible_distribution_release) }} {{ item.components | default(['main']) | join(' ') }}
+{% endfor %}

@@ -1,0 +1,44 @@
+- name: Drop apt configuration file
+  template:
+    src: common/sources.list.j2
+    dest: /etc/apt/sources.list
+    owner: root
+    group: root
+    mode: '0644'
+  tags:
+    - os-ubuntu-apt-configuration
+
+- name: Install required system packages
+  apt:
+    update_cache: yes
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - hdparm
+    - traceroute
+    - cloud-init
+  tags:
+    - os-ubuntu-prepare-packages
+
+- name: Install user apt packages
+  apt:
+    update_cache: yes
+    cache_valid_time: 600
+    name: "{{ item }}"
+    state: present
+    install_recommends: no
+  with_items: os_ubuntu_apt_packages
+  tags:
+    - os-ubuntu-apt-configure-packages
+
+- name: Perform apt dist upgrade
+  apt:
+    update_cache: yes
+    cache_valid_time: 600
+    upgrade: dist
+  when: os_ubuntu_apt_dist_upgrade | bool
+
+- name: Clean apt caches
+  command: rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+  tags:
+    - image-prepare-apt-clean

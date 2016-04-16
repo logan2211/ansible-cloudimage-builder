@@ -1,0 +1,6 @@
+---
+- include: mount.yml
+  when: mount_filesystems | bool
+
+- include: unmount.yml
+  when: unmount_filesystems | bool

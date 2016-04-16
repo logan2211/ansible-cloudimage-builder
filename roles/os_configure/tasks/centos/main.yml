@@ -1,0 +1,45 @@
+---
+- name: Disable yum mirrorlist
+  replace:
+    dest: /etc/yum.repos.d/CentOS-Base.repo
+    regexp: '^mirrorlist'
+    replace: '#mirrorlist'
+  tags:
+    - os-centos-yum-repos
+    - os-centos-yum-disable-mirrorlist
+
+- name: Set CentOS mirror
+  replace:
+    dest: /etc/yum.repos.d/CentOS-Base.repo
+    regexp: '^#baseurl=http://mirror.centos.org/centos'
+    replace: "baseurl={{ os_centos_repo_mirror }}"
+  tags:
+    - os-centos-yum-repos
+    - os-centos-yum-local-mirror
+
+- name: Configure CentOS networking
+  include: network.yml
+  tags:
+    - os-centos-networking
+
+- name: Install fstrim packages
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - hdparm
+    - bc
+  when: os_enable_fstrim | bool
+  tags:
+    - os-centos-fstrim-packages
+
+- name: Add CentOS 6 configuration
+  include: centos6.yml
+  when: ansible_distribution_version.split(".")[0] == '6'
+
+#ansible wipes selinux labels on files it modifies, this will restore them.
+- name: Repair selinux labels
+  command: "{{ item }}"
+  with_items:
+    - 'setfiles /etc/selinux/targeted/contexts/files/file_contexts /'
+    - 'setfiles /etc/selinux/targeted/contexts/files/file_contexts.homedirs /'

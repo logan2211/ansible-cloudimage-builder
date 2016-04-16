@@ -1,0 +1,16 @@
+- name: Unmount image
+  command: umount "{{ inventory_hostname }}"
+  tags:
+    - image-unmount
+
+- include: resize.yml
+  when: image_resize | bool
+
+- name: stop nbd device
+  command: qemu-nbd -d "{{ nbd_device }}"
+  tags:
+    - image-resize
+    - image-resize-unmount
+
+- include: upload.yml
+  when: image_upload | bool

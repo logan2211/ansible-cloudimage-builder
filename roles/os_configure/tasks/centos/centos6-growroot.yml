@@ -1,0 +1,40 @@
+- name: Install EPEL
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - epel-release
+  tags:
+    - enable-growroot
+
+- name: Disable EPEL yum mirrorlist
+  replace:
+    dest: /etc/yum.repos.d/epel.repo
+    regexp: '^mirrorlist'
+    replace: '#mirrorlist'
+  tags:
+    - epel-disable-mirrorlist
+
+- name: Set EPEL mirror
+  replace:
+    dest: /etc/yum.repos.d/epel.repo
+    regexp: '^#baseurl=http://download.fedoraproject.org/pub/epel'
+    replace: "baseurl={{ os_epel_repo_mirror }}"
+  tags:
+    - epel-local-mirror
+
+- name: Install Growroot modules
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - perl
+    - cloud-init
+    - dracut-modules-growroot
+  tags:
+    - enable-growroot
+
+- name: Rebuild initrd
+  shell: "rpm -qa kernel | perl -pe 's/^kernel-//'  | xargs -I {} dracut -f /boot/initramfs-{}.img {}"
+  tags:
+    - enable-growroot

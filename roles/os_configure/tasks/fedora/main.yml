@@ -1,0 +1,45 @@
+- name: Disable yum metalink
+  replace:
+    dest: "{{ item }}"
+    regexp: '^metalink'
+    replace: '#metalink'
+  with_items:
+    - /etc/yum.repos.d/fedora.repo
+    - /etc/yum.repos.d/fedora-updates.repo
+  tags:
+    - os-fedora-yum-repos
+    - os-fedora-yum-disable-metalink
+
+- name: Set Fedora mirror
+  replace:
+    dest: "{{ item }}"
+    regexp: '^#baseurl=http://download.fedoraproject.org/pub/fedora/linux'
+    replace: "baseurl={{ os_fedora_repo_mirror }}"
+  with_items:
+    - /etc/yum.repos.d/fedora.repo
+    - /etc/yum.repos.d/fedora-updates.repo
+  tags:
+    - os-fedora-yum-repos
+    - os-fedora-yum-local-mirror
+
+- name: Configure Fedora networking
+  include: network.yml
+  tags:
+    - os-fedora-networking
+
+- name: Install fstrim packages
+  dnf:
+    name: "{{ item }}"
+  with_items:
+    - hdparm
+    - bc
+  when: os_enable_fstrim | bool
+  tags:
+    - os-fedora-fstrim-packages
+
+#ansible wipes selinux labels on files it modifies, this will restore them.
+- name: Repair selinux labels
+  command: "{{ item }}"
+  with_items:
+    - 'setfiles /etc/selinux/targeted/contexts/files/file_contexts /'
+    - 'setfiles /etc/selinux/targeted/contexts/files/file_contexts.homedirs /'

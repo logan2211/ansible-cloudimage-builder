@@ -1,0 +1,13 @@
+- name: Extract VM image
+  unarchive:
+    src: "{{ image_dir }}/{{ image_name | default(image_url | basename) }}"
+    dest: "{{ image_dir }}"
+    copy: no
+  tags:
+    - image-extract
+
+- name: Set image name fact
+  set_fact:
+    image_build_name: "{{ (image_url | basename | splitext)[0] }}"
+  tags:
+    - image-build-name

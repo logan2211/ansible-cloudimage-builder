@@ -1,0 +1,19 @@
+- name: Upload to openstack
+  os_image:
+    name: "{{ image_upload_name | default(image_build_name) }}"
+    auth: "{{ os_auth | default(omit) }}"
+    container_format: bare
+    disk_format: raw
+    state: present
+    filename: "{{ image_dir }}/{{ image_build_name }}.raw"
+    properties: "{{ os_image_properties }}"
+    is_public: "{{ os_upload_public | bool }}"
+    validate_certs: "{{ os_ssl_verify | bool }}"
+  tags:
+    - image-upload-openstack
+- name: Remove build directory
+  file:
+    path: "{{ image_dir }}"
+    state: absent
+  tags:
+    - image-cleanup

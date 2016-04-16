@@ -1,0 +1,84 @@
+- name: fsck before resize
+  command: e2fsck -fy "{{ nbd_device }}p1"
+  tags:
+    - image-resize
+    - image-resize-fsck
+
+- name: resize image to minimum size
+  command: resize2fs -M "{{ nbd_device }}p1"
+  tags:
+    - image-resize
+
+- name: Get partition start
+  shell: parted -m "{{ nbd_device }}" 'unit B' 'print' | tail -n1 | cut -d ':' -f 2
+  register: part
+  tags:
+    - image-partition-start
+
+- name: Get filesystem block count
+  shell: tune2fs -l "{{ nbd_device }}"p1 | grep 'Block count' | awk '{ print $3 }'
+  register: fs_block_count
+  tags:
+    - image-fs-blockcount
+
+- name: Get filesystem block size
+  shell: tune2fs -l "{{ nbd_device }}"p1 | grep 'Block size' | awk '{ print $3 }'
+  register: fs_block_size
+  tags:
+    - image-fs-blocksize
+
+- name: Set image target size dynamically
+  set_fact:
+    image_destination_size: "{{ ((fs_block_count.stdout|int * fs_block_size.stdout|int)/1000/1000) | round(0) + image_extra_space }}M"
+  when: image_destination_size is not defined
+  tags:
+    - image-dynamic-resize
+
+- debug:
+    msg: "Filesystem size: {{ fs_block_count.stdout }} Filesystem block size: {{ fs_block_size.stdout }} Calculated image size: {{ image_destination_size }}"
+
+- name: Delete old partition
+  command: parted -s "{{ nbd_device }}" rm 1
+  tags:
+    - image-resize
+    - image-resize-partition
+
+- name: Add resized partition
+  command: parted -s "{{ nbd_device }}" mkpart primary ext4 "{{ part.stdout }}" "{{ image_destination_size }}"
+  tags:
+    - image-resize
+    - image-resize-partition
+
+- name: Set bootable flag on resized partition
+  command: parted -s "{{ nbd_device }}" set 1 boot on
+  tags:
+    - image-resize
+    - image-resize-partition
+
+- name: Stop nbd mount device
+  command: qemu-nbd -d "{{ nbd_device }}"
+  tags:
+    - image-resize
+    - image-resize-unmount
+
+- name: Resize RAW image
+  command: qemu-img resize "{{ image_dir }}/{{ image_build_name }}.raw" "{{ image_destination_size }}"
+  tags:
+    - image-resize
+
+- name: Start nbd device
+  command: qemu-nbd -c "{{ nbd_device }}" "{{ image_dir }}/{{ image_build_name }}.raw"
+  tags:
+    - image-resize
+    - image-resize-mount
+
+- name: fsck after resize
+  command: e2fsck -fy "{{ nbd_device }}p1"
+  tags:
+    - image-resize
+    - image-resize-fsck
+
+- name: resize image to full size
+  command: resize2fs "{{ nbd_device }}p1"
+  tags:
+    - image-resize

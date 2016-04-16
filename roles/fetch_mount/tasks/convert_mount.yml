@@ -1,0 +1,43 @@
+- name: Convert qcow2 to RAW
+  command: qemu-img convert -O raw 
+    "{{ image_dir }}/{{ image_name | default(image_url | basename) }}"
+    "{{ image_dir }}/{{ image_build_name }}.raw"
+  when: image_type != 'bitnami'
+  tags:
+    - image-convert
+
+- name: Convert vmdk to RAW
+  command: qemu-img convert -O raw 
+    "{{ image_dir }}/{{ image_build_name }}/{{ image_build_name }}.vmdk"
+    "{{ image_dir }}/{{ image_build_name }}.raw"
+  when: image_type == 'bitnami'
+  tags:
+    - image-convert
+
+- name: Start nbd device on next available
+  shell: |
+    sleep `echo $$%20 | bc`;
+    for x in /sys/class/block/nbd*; do
+      S=`cat $x/size`;
+      if [ "$S" = "0" ]; then
+        echo `basename $x`;
+        qemu-nbd -c /dev/`basename $x` {{ image_dir | quote }}/{{ image_build_name | quote }}.raw;
+        break;
+      fi
+    done
+  register: nbd_mount
+  tags:
+    - image-resize
+    - image-resize-mount
+
+- name: Set nbd device fact
+  set_fact:
+    nbd_device: "/dev/{{ nbd_mount.stdout }}"
+  tags:
+    - image-resize
+    - image-resize-mount
+
+- name: Mount image
+  command: mount "{{ nbd_device }}p1" "{{ inventory_hostname }}"
+  tags:
+    - image-mount

@@ -1,0 +1,46 @@
+#most OS will overwrite these from DHCP values so consider temporary for image setup purposes in this role only
+os_resolv_nameservers:
+  - 64.31.5.1
+  - 64.31.5.2
+
+os_enable_fstrim: true
+
+os_repo_mirror: http://mirror.lstn.net
+os_ubuntu_apt_mirror: "{{ os_repo_mirror }}/ubuntu"
+os_centos_repo_mirror: "{{ os_repo_mirror }}/centos"
+os_fedora_repo_mirror: "{{ os_repo_mirror }}/fedora"
+os_epel_repo_mirror: "{{ os_repo_mirror }}/fedora-epel"
+
+os_ubuntu_apt_repos:
+  - url: "{{ os_ubuntu_apt_mirror }}"
+    components:
+      - main
+      - restricted
+      - universe
+      - multiverse
+  - url: "{{ os_ubuntu_apt_mirror }}"
+    distribution: "{{ ansible_distribution_release }}-updates"
+    components:
+      - main
+      - restricted
+      - universe
+      - multiverse
+  - url: "{{ os_ubuntu_apt_mirror }}"
+    distribution: "{{ ansible_distribution_release }}-backports"
+    components:
+      - main
+      - restricted
+      - universe
+      - multiverse
+  - url: "{{ os_ubuntu_apt_mirror }}"
+    distribution: "{{ ansible_distribution_release }}-security"
+    components:
+      - main
+      - restricted
+      - universe
+      - multiverse
+
+os_ubuntu_apt_dist_upgrade: false
+os_centos_yum_upgrade: false
+
+os_ubuntu_apt_packages: []

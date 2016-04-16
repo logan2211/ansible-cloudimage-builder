@@ -1,0 +1,24 @@
+- name: Install python in Fedora image
+  raw: dnf -y install attr python2 python2-dnf libselinux-python
+  when: "'fedora' in image_url"
+
+- name: Verify python in Ubuntu image
+  raw: dpkg -s python-simplejson > /dev/null 2>&1
+  register: ubuntu_python_installed
+  ignore_errors: True
+  when: "'ubuntu' in image_url"
+
+- include: drop-resolv.yml
+  ansible_connection: local
+  when:
+    - ubuntu_python_installed is defined
+    - ubuntu_python_installed|failed
+
+- name: Install python in Ubuntu image
+  raw: apt-get -y install python python-simplejson
+  when:
+    - ubuntu_python_installed is defined
+    - ubuntu_python_installed|failed
+
+- name: Collect facts from image
+  action: setup

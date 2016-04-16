@@ -1,0 +1,28 @@
+- name: Include common OS setup
+  include: common/main.yml
+  tags:
+    - os-common
+
+- name: Include Fedora OS setup
+  include: fedora/main.yml
+  when: ansible_distribution == 'Fedora'
+  tags:
+    - os-fedora
+
+- name: Include CentOS OS Setup
+  include: centos/main.yml
+  when: ansible_distribution == 'CentOS'
+  tags:
+    - os-centos
+
+- name: Include Ubuntu OS Setup
+  include: ubuntu/main.yml
+  when: ansible_distribution == 'Ubuntu'
+  tags:
+    - os-ubuntu
+
+#- name: Include Debian OS Setup
+#  include: debian/main.yml
+#  when: ansible_distribution == 'Debian'
+#  tags:
+#    - os-debian

@@ -1,0 +1,14 @@
+- name: Set up apt repos
+  include: apt.yml
+  tags:
+    - os-ubuntu-apt
+
+- name: Configure cloud-init
+  include: cloud-init.yml
+  tags:
+    - os-ubuntu-cloud-init
+
+- name: Configure networking
+  include: network.yml
+  tags:
+    - os-ubuntu-network

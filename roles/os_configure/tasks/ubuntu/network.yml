@@ -1,0 +1,20 @@
+- name: Configure dhclient for ipv6 dhcp
+  lineinfile:
+    dest: /sbin/dhclient-script
+    insertbefore: '^export PATH'
+    line: "new_ip6_prefixlen=128"
+  tags:
+    - os-ubuntu-prepare-dhclient-ipv6
+
+- name: Copy network interfaces configuration
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+  with_items:
+    - { src: "common/eth0-rs-delay.conf", dest: "/etc/sysctl.d/30-eth0-rs-delay.conf", mode: "0644" }
+    - { src: "common/eth1-disable-ra.conf", dest: "/etc/sysctl.d/30-eth1-disable-ra.conf", mode: "0644" }
+  tags:
+    - os-ubuntu-prepare-network-interfaces

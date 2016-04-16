@@ -1,0 +1,5 @@
+image_resize: yes
+image_upload: yes
+
+mount_filesystems: no
+unmount_filesystems: no

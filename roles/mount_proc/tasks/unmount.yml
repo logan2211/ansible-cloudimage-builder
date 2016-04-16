@@ -1,0 +1,11 @@
+- name: Ensure unmounted proc, dev, sys in bootstrap
+  command: umount "{{ item }}"
+  register: unmount
+  failed_when: "'not found' not in unmount.stderr and 'not mounted' not in unmount.stderr and unmount.rc != 0"
+  changed_when: "unmount.rc == 0"
+  with_items:
+    - "{{ inventory_hostname }}/proc"
+    - "{{ inventory_hostname }}/sys"
+    - "{{ inventory_hostname }}/dev"
+  tags:
+    - unmount-system-pre

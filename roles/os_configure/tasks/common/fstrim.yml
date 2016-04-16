@@ -1,0 +1,12 @@
+- name: Copy the fstrim cron
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+  with_items:
+    - { src: "common/fstrim-cron-weekly", dest: "/etc/cron.weekly/fstrim", mode: "0755" }
+    - { src: "common/fstrim-all-cloud", dest: "/sbin/fstrim-all-cloud", mode: "0755" }
+  tags:
+    - image-prepare-fstrim

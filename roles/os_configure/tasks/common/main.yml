@@ -1,0 +1,11 @@
+- name: Configure image nameservers
+  template:
+    src: common/resolv.conf.j2
+    dest: /etc/resolv.conf
+  when: os_resolv_nameservers
+  tags:
+    - os-common-resolv
+
+- name: Configure image fstrim scripts and cron
+  include: fstrim.yml
+  when: os_enable_fstrim | bool

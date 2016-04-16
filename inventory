@@ -1,0 +1,16 @@
+[images]
+#ubuntu
+/tmp/ubuntu-trusty-20160518/build image_url="https://cloud-images.ubuntu.com/trusty/20160518/trusty-server-cloudimg-amd64-disk1.img" image_upload_name="Ubuntu 14.04 LTS (Trusty Tahr) 64 Bit [20160518]" image_destination_size=950M
+
+#centos
+/tmp/centos6-1603/build image_url="http://cloud.centos.org/centos/6/images/CentOS-6-x86_64-GenericCloud-1603.qcow2" image_upload_name="CentOS 6 64 Bit [1603]" image_destination_size=1025M
+/tmp/centos7-1604/build image_url="http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud-1604.qcow2" image_upload_name="CentOS 7 64 Bit [1604]" image_resize=no
+
+#fedora
+/tmp/fedora23-20151030/build image_url="https://download.fedoraproject.org/pub/fedora/linux/releases/23/Cloud/x86_64/Images/Fedora-Cloud-Base-23-20151030.x86_64.qcow2" image_upload_name="Fedora 23 64 Bit [20151030]" image_destination_size=900M
+
+#bitnami
+/tmp/wordpress-4.5.2-0/build image_url="http://downloads.bitnami.com/files/stacks/wordpress/4.5.2-0/bitnami-wordpress-4.5.2-0-linux-ubuntu-14.04-x86_64.zip" image_upload_name="Bitnami Wordpress 4.5.2-0-ubuntu-14.04" image_type=bitnami
+
+#coreos
+/tmp/coreos-899.15.0/build image_url="http://stable.release.core-os.net/amd64-usr/899.15.0/coreos_production_openstack_image.img.bz2" image_upload_name="CoreOS 899.15.0 64 Bit" os_upload_public=no

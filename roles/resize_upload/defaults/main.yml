@@ -1,0 +1,7 @@
+---
+
+#image_destination_size: "{{ hostvars[inventory_hostname]['image_destination_size'] | default('4G') }}"
+openstack_ssl_verify: yes
+
+#add 200mb to the minimum image size as free space buffer
+image_extra_space: 25

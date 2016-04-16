@@ -1,0 +1,6 @@
+- name: Drop a temporary resolv.conf in the image
+  copy:
+    content: |
+      nameserver 64.31.5.1
+      nameserver 64.31.5.2
+    dest: "{{ inventory_hostname }}/etc/resolv.conf"

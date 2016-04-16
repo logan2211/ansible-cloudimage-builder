@@ -1,0 +1,22 @@
+#https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Security-Enhanced_Linux/sect-Security-Enhanced_Linux-Working_with_SELinux-SELinux_Contexts_Labeling_Files.html
+#ls -Z file to see its default context
+- name: Configure dhclient for ipv6 dhcp
+  lineinfile:
+    dest: /sbin/dhclient-script
+    insertbefore: '^PATH='
+    line: "new_ip6_prefixlen=128"
+  tags:
+    - os-centos-prepare-dhclient-ipv6
+
+- name: Configure sysctl settings
+  sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: no
+    sysctl_set: no
+  with_items:
+    - { key: 'net.ipv6.conf.eth0.router_solicitation_delay', value: 10 }
+    - { key: 'net.ipv6.conf.eth1.accept_ra', value: 0 }
+  tags:
+    - os-centos-ipv6-sysctl

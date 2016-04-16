@@ -1,0 +1,4 @@
+- include: download.yml
+- include: extract_bitnami.yml
+  when: image_type == 'bitnami'
+- include: convert_mount.yml

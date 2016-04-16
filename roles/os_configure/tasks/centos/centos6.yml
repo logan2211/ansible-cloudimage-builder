@@ -1,0 +1,9 @@
+- name: Install growroot
+  include: centos6-growroot.yml
+
+- name: Enable main console output in GRUB
+  lineinfile:
+    dest: /boot/grub/grub.conf
+    backrefs: yes
+    regexp: '^(\tkernel.*)(console=ttyS0.*)$'
+    line: '\1console=tty0 \2'

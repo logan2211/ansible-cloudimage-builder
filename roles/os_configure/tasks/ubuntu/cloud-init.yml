@@ -1,0 +1,28 @@
+- name: Drop cloud-init configuration
+  template:
+    src: ubuntu/cloud-init.cfg.j2
+    dest: /etc/cloud/cloud.cfg
+    owner: root
+    group: root
+    mode: '0644'
+  tags:
+    - os-cloud-init-config
+
+
+#TODO: Get this working for dynamic replacements in cloud-init configuration
+#- name: Fix apt search configuration for cloud-init
+#  lineinfile:
+#    dest: /etc/cloud/cloud.cfg
+#    regexp: "^\s+search:\s*\n\s+primary:\s*\n(?:\s*- http://[^\s]+\s*\n)+\s*security:\s*\[\]\s*\n"
+#    state: absent
+#  tags:
+#    - cloud-init-disable-search
+#
+#- name: Set apt repos in cloud-init
+#  lineinfile:
+#    backrefs: yes
+#    dest: /etc/cloud/cloud.cfg
+#    regexp: "^\s+failsafe:\s*\n\s+primary: http://archive.ubuntu.com/ubuntu\s*\n\s+security: http://security.ubuntu.com/ubuntu"
+#    line: "    failsafe:\n      primary: {{ image_ubuntu_apt_mirror }}\n      security: {{ image_ubuntu_apt_mirror }}"
+#  tags:
+#    - cloud-init-local-apt

@@ -1,0 +1,23 @@
+- name: Delete existing image directory
+  file:
+    path: "{{ image_dir }}"
+    state: absent
+- name: Prep image mount directory
+  file:
+    path: "{{ inventory_hostname }}"
+    state: directory
+    mode: 0755
+  tags:
+    - image-bootstrap
+- name: Download VM image
+  get_url:
+    url: "{{ image_url }}"
+    dest: "{{ image_dir }}/{{ image_name | default(image_url | basename) }}"
+    force: "{{ image_fetch_force | default('no') }}"
+  tags:
+    - image-fetch
+- name: Set image name fact
+  set_fact:
+    image_build_name: "{{ (image_url | basename | splitext)[0] }}"
+  tags:
+    - image-build-name
